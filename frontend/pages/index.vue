@@ -45,6 +45,29 @@ const getPeriodDates = period => {
 		to: now.toISOString(),
 	}
 }
+
+const renderChart = () => {
+	const ctx = document.getElementById('priceChart').getContext('2d')
+	new Chart(ctx, {
+		type: 'line',
+		data: {
+			labels: chartData.value.map(p => new Date(p.timestamp).toLocaleString()),
+			datasets: [
+				{
+					label: 'Цена Bitcoin (USD)',
+					data: chartData.value.map(p => p.price),
+					borderColor: 'blue',
+					fill: false,
+				},
+			],
+		},
+	})
+}
+
+onMounted(() => {
+   fetchPrices()
+}); 
+
 </script>
 
 <template>Hello</template>
