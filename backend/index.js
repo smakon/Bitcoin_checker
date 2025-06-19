@@ -16,6 +16,18 @@ const pool = new Pool({
 
 app.use(cors())
 
+// Получение цен за период
+app.get('/prices', async (req, res) => {
+	const { from, to } = req.query
+	let query = 'SELECT * FROM prices'
+
+	if (from && to) {
+		query += ` WHERE timestamp BETWEEN '${from}' AND '${to}'`
+	}
+
+	const result = await pool.query(query)
+	res.json(result.rows)
+})
 
 app.listen(PROT, () => {
 	console.log(`Backend API running on http://localhost:${port}`)
