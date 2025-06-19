@@ -9,21 +9,44 @@ const customFrom = ref('')
 const customTo = ref('')
 
 const fetchPrices = async () => {
-   let url = 'http://localhost:3001/prices'
+	let url = 'http://localhost:3001/prices'
 
-   if (selectedPeriod.value === 'custom' && customFrom.value && customTo.value) {
-      url += `?from=${customFrom.value}&to=${customTo.value}`
-   }
+	if (selectedPeriod.value === 'custom' && customFrom.value && customTo.value) {
+		url += `?from=${customFrom.value}&to=${customTo.value}`
+	}
 
-   const res = await axios.get(url)
-   chartData.value = res.data
+	const res = await axios.get(url)
+	chartData.value = res.data
 
-   renderChart()
-};
+	renderChart()
+}
 
+const getPeriodDates = period => {
+	const now = new Date()
+	let from = new Date()
 
+	switch (period) {
+		case 'day':
+			from.setDate(now.getDate() - 1)
+			break
+		case 'week':
+			from.setDate(now.getDate() - 7)
+			break
+		case 'month':
+			from.setMonth(now.getMonth() - 1)
+			break
+		case 'year':
+			from.setFullYear(now.getFullYear() - 1)
+			break
+	}
+
+	return {
+		from: from.toISOString(),
+		to: now.toISOString(),
+	}
+}
 </script>
 
-<template></template>
+<template>Hello</template>
 
 <style scoped lang="scss"></style>
