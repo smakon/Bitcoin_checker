@@ -66,10 +66,28 @@ const renderChart = () => {
 
 onMounted(() => {
    fetchPrices()
-}); 
-
+});
 </script>
 
-<template>Hello</template>
+<template>
+	<div>
+		<h1>Цена Bitcoin</h1>
+		<select v-model="selectedPeriod" @change="fetchPrices">
+			<option value="day">За день</option>
+			<option value="week">За неделю</option>
+			<option value="month">За месяц</option>
+			<option value="year">За год</option>
+			<option value="custom">Свой период</option>
+		</select>
+
+		<div v-if="selectedPeriod === 'custom'">
+			<input type="datetime-local" v-model="customFrom" />
+			<input type="datetime-local" v-model="customTo" />
+			<button @click="fetchPrices">Применить</button>
+		</div>
+
+		<canvas id="priceChart"></canvas>
+	</div>
+</template>
 
 <style scoped lang="scss"></style>
