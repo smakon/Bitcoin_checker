@@ -27,3 +27,9 @@ const fetchBitcoinPrice = async () => {
 		console.error('Error fetching Bitcoin price:', error.message)
 	}
 }
+
+// Запуск каждые 5 минут
+setInterval(fetchBitcoinPrice, 5 * 60 * 1000);
+
+// Первый запуск
+fetchBitcoinPrice();
