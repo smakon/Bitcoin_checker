@@ -3,7 +3,7 @@ const { Pool } = require('pg') // Используем PostgreSQL
 const cors = require('cors')
 
 const app = express()
-const port = 3001
+const PORT = 3001
 
 // Подключение к БД
 const pool = new Pool({
@@ -15,3 +15,8 @@ const pool = new Pool({
 })
 
 app.use(cors())
+
+
+app.listen(PROT, () => {
+	console.log(`Backend API running on http://localhost:${port}`)
+})
