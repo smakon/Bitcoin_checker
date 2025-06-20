@@ -4,7 +4,7 @@ const { format } = require('date-fns')
 
 const pool = new Pool({
 	user: 'postgres',
-	host: '127.127.126.49',
+	host: 'db',
 	database: 'postgres',
 	password: '',
 	port: 5432,
