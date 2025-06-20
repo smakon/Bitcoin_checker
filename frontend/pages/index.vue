@@ -1,32 +1,24 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import axios from 'axios'
 import Chart from 'chart.js/auto'
 
 const chartData = ref([])
+let priceChart = null
+
 const selectedPeriod = ref('day')
 const customFrom = ref('')
 const customTo = ref('')
-let priceChart = null
 
-const fetchPrices = async () => {
-	let url = 'http://localhost:3001/prices'
-
-	if (selectedPeriod.value === 'custom' && customFrom.value && customTo.value) {
-		url += `?from=${customFrom.value}&to=${customTo.value}`
-	}
-
-	const res = await axios.get(url)
-	chartData.value = res.data
-
-	renderChart()
-}
-
-const getPeriodDates = period => {
+// Формируем диапазон дат
+const getPeriodDates = () => {
 	const now = new Date()
 	let from = new Date()
 
-	switch (period) {
+	switch (selectedPeriod.value) {
+		case 'hour':
+			from.setMinutes(now.getMinutes() - 60)
+			break
 		case 'day':
 			from.setDate(now.getDate() - 1)
 			break
@@ -39,6 +31,8 @@ const getPeriodDates = period => {
 		case 'year':
 			from.setFullYear(now.getFullYear() - 1)
 			break
+		case 'custom':
+			return { from: customFrom.value, to: customTo.value }
 	}
 
 	return {
@@ -47,55 +41,63 @@ const getPeriodDates = period => {
 	}
 }
 
+// Получаем данные с бэкенда
+const fetchPrices = async () => {
+	const { from, to } = getPeriodDates()
+	const res = await axios.get('http://localhost:3001/prices', {
+		params: { from, to },
+	})
+	chartData.value = res.data
+	renderChart()
+}
+
+// Рисуем график
 const renderChart = () => {
-   const ctx = document.getElementById('priceChart').getContext('2d')
+	const ctx = document.getElementById('priceChart').getContext('2d')
 
-   // Уничтожаем предыдущий график, если он существует
-   if (priceChart) {
-      priceChart.destroy()
-   }
+	if (priceChart) {
+		priceChart.destroy() // Уничтожаем предыдущий график
+	}
 
-   priceChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-         labels: chartData.value.map(p => new Date(p.timestamp).toLocaleString()),
-         datasets: [{
-            label: 'Цена Bitcoin (USD)',
-            data: chartData.value.map(p => p.price),
-            borderColor: 'blue',
-            fill: false,
-            tension: 0.1
-         }]
-      },
-      options: {
-         responsive: true,
-         scales: {
-            x: {
-               title: {
-                  display: true,
-                  text: 'Время'
-               }
-            },
-            y: {
-               title: {
-                  display: true,
-                  text: 'Цена (USD)'
-               }
-            }
-         }
-      }
-   })
-};
+	priceChart = new Chart(ctx, {
+		type: 'line',
+		data: {
+			labels: chartData.value.map(p => new Date(p.timestamp).toLocaleString()),
+			datasets: [
+				{
+					label: 'Цена закрытия (Close Price)',
+					data: chartData.value.map(p => p.close_price),
+					borderColor: 'blue',
+					fill: false,
+					tension: 0.1,
+				},
+			],
+		},
+		options: {
+			responsive: true,
+			scales: {
+				x: {
+					title: { display: true, text: 'Дата' },
+				},
+				y: {
+					title: { display: true, text: 'Цена (USD)' },
+				},
+			},
+		},
+	})
+}
 
-onMounted(() => {
-   fetchPrices()
-});
+// При монтировании компонента загружаем данные
+fetchPrices();
 </script>
 
 <template>
-	<div>
-		<h1>Цена Bitcoin</h1>
+	<div class="container">
+		<h1>Цена Bitcoin (OHLC)</h1>
+
+		<!-- Выбор временного диапазона -->
 		<select v-model="selectedPeriod" @change="fetchPrices">
+			<option value="hour">За час</option>
 			<option value="day">За день</option>
 			<option value="week">За неделю</option>
 			<option value="month">За месяц</option>
@@ -103,14 +105,15 @@ onMounted(() => {
 			<option value="custom">Свой период</option>
 		</select>
 
-		<div v-if="selectedPeriod === 'custom'">
+		<!-- Пользовательский диапазон -->
+		<div v-if="selectedPeriod === 'custom'" style="margin-top: 10px">
 			<input type="datetime-local" v-model="customFrom" />
+			<span> — </span>
 			<input type="datetime-local" v-model="customTo" />
 			<button @click="fetchPrices">Применить</button>
 		</div>
 
-		<canvas class="chart" id="priceChart"></canvas>
+		<!-- График -->
+		<canvas id="priceChart" width="800" height="400"></canvas>
 	</div>
 </template>
-
-<style scoped lang="scss"></style>

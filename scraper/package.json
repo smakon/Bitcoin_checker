@@ -1,10 +1,12 @@
 {
 	"name": "scraper",
 	"scripts": {
-		"start": "node index.js"
+		"start": "node index.js",
+      "makeHistory": "node importHistory.js"
 	},
 	"dependencies": {
 		"axios": "^1.10.0",
+		"date-fns": "^4.1.0",
 		"pg": "^8.11.3"
 	}
 }

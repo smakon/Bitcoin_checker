@@ -14,15 +14,21 @@ const pool = new Pool({
 	port: 5432,
 })
 
+
+
 app.use(cors())
 
 // Получение цен за период
 app.get('/prices', async (req, res) => {
 	const { from, to } = req.query
-	let query = 'SELECT * FROM prices'
+
+	let query = 'SELECT * FROM prices ORDER BY timestamp DESC LIMIT 100'
 
 	if (from && to) {
-		query += ` WHERE timestamp BETWEEN '${from}' AND '${to}'`
+		query = `
+      SELECT * FROM prices 
+      WHERE timestamp BETWEEN '${from}' AND '${to}'
+      ORDER BY timestamp`
 	}
 
 	const result = await pool.query(query)
