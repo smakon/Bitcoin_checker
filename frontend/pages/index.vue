@@ -7,6 +7,7 @@ const chartData = ref([])
 const selectedPeriod = ref('day')
 const customFrom = ref('')
 const customTo = ref('')
+let priceChart = null
 
 const fetchPrices = async () => {
 	let url = 'http://localhost:3001/prices'
@@ -47,22 +48,44 @@ const getPeriodDates = period => {
 }
 
 const renderChart = () => {
-	const ctx = document.getElementById('priceChart').getContext('2d')
-	new Chart(ctx, {
-		type: 'line',
-		data: {
-			labels: chartData.value.map(p => new Date(p.timestamp).toLocaleString()),
-			datasets: [
-				{
-					label: 'Цена Bitcoin (USD)',
-					data: chartData.value.map(p => p.price),
-					borderColor: 'blue',
-					fill: false,
-				},
-			],
-		},
-	})
-}
+   const ctx = document.getElementById('priceChart').getContext('2d')
+
+   // Уничтожаем предыдущий график, если он существует
+   if (priceChart) {
+      priceChart.destroy()
+   }
+
+   priceChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+         labels: chartData.value.map(p => new Date(p.timestamp).toLocaleString()),
+         datasets: [{
+            label: 'Цена Bitcoin (USD)',
+            data: chartData.value.map(p => p.price),
+            borderColor: 'blue',
+            fill: false,
+            tension: 0.1
+         }]
+      },
+      options: {
+         responsive: true,
+         scales: {
+            x: {
+               title: {
+                  display: true,
+                  text: 'Время'
+               }
+            },
+            y: {
+               title: {
+                  display: true,
+                  text: 'Цена (USD)'
+               }
+            }
+         }
+      }
+   })
+};
 
 onMounted(() => {
    fetchPrices()
@@ -86,7 +109,7 @@ onMounted(() => {
 			<button @click="fetchPrices">Применить</button>
 		</div>
 
-		<canvas id="priceChart"></canvas>
+		<canvas class="chart" id="priceChart"></canvas>
 	</div>
 </template>
 

@@ -9,7 +9,7 @@ const PORT = 3001
 const pool = new Pool({
 	user: 'postgres',
 	host: '127.127.126.49',
-	database: 'bitcoin_chacker',
+	database: 'postgres',
 	password: '',
 	port: 5432,
 })
@@ -29,6 +29,6 @@ app.get('/prices', async (req, res) => {
 	res.json(result.rows)
 })
 
-app.listen(PROT, () => {
-	console.log(`Backend API running on http://localhost:${port}`)
+app.listen(PORT, () => {
+	console.log(`Backend API running on http://localhost:${PORT}`)
 })

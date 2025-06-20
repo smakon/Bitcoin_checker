@@ -1,11 +1,11 @@
 {
-  "name": "backend",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "Samik",
-  "license": "ISC",
-  "description": ""
+	"name": "backend",
+	"scripts": {
+		"start": "node index.js"
+	},
+	"dependencies": {
+		"cors": "^2.8.5",
+		"express": "^4.21.2",
+		"pg": "^8.11.3"
+	}
 }

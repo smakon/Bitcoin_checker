@@ -4,23 +4,23 @@ const { Pool } = require('pg')
 const pool = new Pool({
 	user: 'postgres',
 	host: '127.127.126.49',
-	database: 'bitcoin_chacker',
-	password: '',
+	database: 'postgres',
+	password: 'root',
 	port: 5432,
 })
 
 const fetchBitcoinPrice = async () => {
 	try {
 		const response = await axios.get(
-			'https://api.coindesk.com/v1/bpi/currentprice.json'
+			'https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT'
 		)
-		const price = response.data.bpi.USD.rate_float
+		const price = response.data.price
 		const timestamp = new Date()
 
-		await pool.query('INSERT INTO prices (price, timestamp) VALUES ($1, $2)', [
-			price,
-			timestamp,
-		])
+		await pool.query(
+			'INSERT INTO public.prices (price, timestamp) VALUES ($1, $2)',
+			[price, timestamp]
+		)
 
 		console.log(`Saved price: ${price} at ${timestamp}`)
 	} catch (error) {
@@ -29,7 +29,7 @@ const fetchBitcoinPrice = async () => {
 }
 
 // Запуск каждые 5 минут
-setInterval(fetchBitcoinPrice, 5 * 60 * 1000);
+setInterval(fetchBitcoinPrice, 5 * 60 * 1000)
 
 // Первый запуск
-fetchBitcoinPrice();
+fetchBitcoinPrice()
